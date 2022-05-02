@@ -4,8 +4,47 @@
     <SliderbarComponent  v-bind:drawer="drawer"/>
     <v-main>
       <v-container class="py-8 px-6" fluid>
-        <v-data-table :headers="headertable" :items="data" :pagination="pagination">
-        </v-data-table>
+        <v-snackbar v-model="alertactive" :timeout="timeout" :multi-line="multiLine">
+           {{msmalert}}
+           <template v-slot:action="{ attrs }">
+             <v-btn color="blue" text v-bind="attrs" @click="alertactive = false">
+               Close
+             </v-btn>
+           </template>
+         </v-snackbar>
+
+        <v-tabs v-model="tab" >
+          <v-tab>Datos</v-tab>
+          <v-tab>Registro</v-tab>
+        </v-tabs>
+        <v-tabs-items v-model="tab">
+          <v-tab-item>
+            <v-row no-gutters>
+            <v-col cols="12" sm="6">
+            </v-col>
+
+            <v-col cols="12" sm="6">
+              <v-text-field v-model="searchcompra" append-icon="mdi-magnify" label="Buscar" single-line hide-details outlined>
+              </v-text-field>
+            </v-col>
+           </v-row>
+
+            <v-data-table :headers="headertable" :items="data" :search="searchcompra">
+              <template v-slot:[`item.actions`]="{ item }">
+                 <v-icon  small class="mr-2" @click="editar(item)">
+                   mdi-pencil
+                 </v-icon>
+                 <v-icon small @click="eliminar(item)">
+                   mdi-delete
+                 </v-icon>
+               </template>
+            </v-data-table>
+          </v-tab-item>
+          <v-tab-item>
+            <h3>tab Dos</h3>
+          </v-tab-item>
+        </v-tabs-items>
+
       </v-container>
     </v-main>
   </div>
@@ -28,7 +67,8 @@ export default {
             {text:'precio_total',value:'precio_total'},
             {text:'img',value:'img'},
             {text:'promotor',value:'promotor'},
-            {text:'producto',value:'producto'}
+            {text:'producto',value:'producto'},
+            { text: 'Actions', value: 'actions', sortable: false }
         ],
         data:[],
         pagination: {
@@ -38,6 +78,12 @@ export default {
           //totalItems: 50,
           rowsPerPageItems: [5, 10, 15, 20]
         },
+        tab:null,
+        searchcompra:'',
+        msmalert:'',
+        alertactive:false,
+        multiLine: true,
+        timeout: 4000,
       }
   },
   methods:{
@@ -62,6 +108,14 @@ export default {
         console.log(error);
       });
       this.overlay = false;
+    },
+    editar(data){
+      console.log("-----------Modificando registro-------------");
+      console.log(data);
+    },
+    eliminar(data){
+      console.log("--------------eliminando registro--------------");
+      console.log(data);
     }
   },
   mounted(){

@@ -126,10 +126,7 @@ export default {
     ],
     imgavatar: localStorage.getItem('img_user'),
     emailavatar: localStorage.getItem('email_user')
-  }),
-   mounted(){
-     console.log("----------------Creacion de headers----------------");
-   }
+  })
 }
 </script>
 
