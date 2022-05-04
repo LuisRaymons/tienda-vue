@@ -222,7 +222,7 @@ export default {
       });
     },
     eliminar(data){
-      this.$confirm('¿Deseas eliminar la categoria ' + data.nombre + "  " + data.apellidos + '?').then((res) => {
+      this.$confirm('¿Deseas eliminar la cliente ' + data.nombre + "  " + data.apellidos + '?').then((res) => {
         if(res){
           var formdatadestroy = new FormData();
           formdatadestroy.append("api_token",localStorage.getItem('token_user'));

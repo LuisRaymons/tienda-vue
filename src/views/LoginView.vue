@@ -115,7 +115,6 @@ export default {
       this.overlay = true;
 
       this.axios.post(process.env.VUE_APP_URL + '/login',formlogin).then((response) => {
-        console.log(response.data.code);
         if(response.data.code == 200){
           localStorage.setItem('id_user',response.data.data.id);
           localStorage.setItem('name_user',response.data.data.name);

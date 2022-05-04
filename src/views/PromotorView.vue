@@ -41,9 +41,74 @@
             </v-data-table>
           </v-tab-item>
           <v-tab-item>
-            <h3>tab Dos</h3>
+            <v-form ref="formvalidpromotor" v-model="validformpromotor" lazy-validation>
+              <v-card-text></v-card-text>
+              <v-text-field v-model="namepromotor" label="Nombre" outlined :rules="[() => !!namepromotor || 'El nombre es requerido']" required>
+              </v-text-field>
+
+              <v-text-field v-model="addresspromotor" label="Direcion" outlined :rules="[() => !!addresspromotor || 'La direccion es requerida']" required>
+              </v-text-field>
+
+              <v-text-field v-model="phonepromotor" label="Telefono" outlined :rules="[() => !!phonepromotor || 'El telefono es requerido']" required>
+              </v-text-field>
+
+              <v-text-field v-model="webpromotor" label="Citio Web" outlined>
+              </v-text-field>
+
+              <v-row>
+                <v-col cols="12" sm="10">
+                  <v-file-input v-model="fileimgpromotor" show-size counter outlined label="Seleccionar archivo"></v-file-input>
+                </v-col>
+                <v-col cols="12" sm="2">
+                  <v-img :lazy-src="imgsrc" max-height="80" max-width="80" :src="imgsrc"></v-img>
+                </v-col>
+              </v-row>
+
+              <v-btn large color="primary" @click="savepromotor">Guardar</v-btn>
+            </v-form>
           </v-tab-item>
         </v-tabs-items>
+
+        <!--- Model editar -->
+        <v-dialog v-model="modaledit" transition="dialog-top-transition" max-width="600">
+          <template v-slot:default="dialog">
+            <v-card>
+              <v-toolbar color="primary" dark>Modificar Promotor</v-toolbar>
+              <v-card-text>
+                <v-card-text></v-card-text>
+                <v-form ref="formvalidpromotoredit" v-model="validformpromotoredit" lazy-validation>
+                  <v-card-text></v-card-text>
+                  <input type="hidden" v-model="idpromotoredit">
+                  <v-text-field v-model="namepromotoredit" label="Nombre" outlined :rules="[() => !!namepromotoredit || 'El nombre es requerido']" required>
+                  </v-text-field>
+
+                  <v-text-field v-model="addresspromotoredit" label="Direcion" outlined :rules="[() => !!addresspromotoredit || 'La direccion es requerida']" required>
+                  </v-text-field>
+
+                  <v-text-field v-model="phonepromotoredit" label="Telefono" outlined :rules="[() => !!phonepromotoredit || 'El telefono es requerido']" required>
+                  </v-text-field>
+
+                  <v-text-field v-model="webpromotoredit" label="Citio Web" outlined>
+                  </v-text-field>
+
+                  <v-row>
+                    <v-col cols="12" sm="10">
+                      <v-file-input v-model="fileimgpromotoredit" show-size counter outlined label="Seleccionar archivo"></v-file-input>
+                    </v-col>
+                    <v-col cols="12" sm="2">
+                      <v-img :lazy-src="imgsrcedit" max-height="80" max-width="80" :src="imgsrcedit"></v-img>
+                    </v-col>
+                  </v-row>
+
+                </v-form>
+              </v-card-text>
+              <v-card-actions class="justify-end">
+                <v-btn large color="primary" @click="savepromotoredit">Guardar</v-btn>
+                <v-btn large color="secondary" @click="dialog.value = false">Close</v-btn>
+              </v-card-actions>
+            </v-card>
+          </template>
+        </v-dialog>
 
       </v-container>
     </v-main>
@@ -83,6 +148,25 @@ export default {
         alertactive:false,
         multiLine: true,
         timeout: 4000,
+
+        validformpromotor:true,
+        namepromotor:'',
+        addresspromotor:'',
+        phonepromotor:'',
+        webpromotor:'',
+        fileimgpromotor:[],
+        imgsrc:'',
+
+        idpromotoredit:'',
+        modaledit:'',
+        validformpromotoredit:true,
+        namepromotoredit:'',
+        addresspromotoredit:'',
+        phonepromotoredit:'',
+        webpromotoredit:'',
+        fileimgpromotoredit:[],
+        imgsrcedit:'',
+
       }
   },
   methods:{
@@ -108,13 +192,105 @@ export default {
       });
       this.overlay = false;
     },
+    savepromotor(){
+
+      if(this.$refs.formvalidpromotor.validate()){
+        var formnewpromotor = new FormData();
+        formnewpromotor.append('api_token',localStorage.getItem('token_user'));
+        formnewpromotor.append('name',this.namepromotor);
+        formnewpromotor.append('address',this.addresspromotor);
+        formnewpromotor.append('phone',this.phonepromotor);
+        formnewpromotor.append('website',this.webpromotor);
+        formnewpromotor.append('img',this.fileimgpromotor);
+
+        this.overlay = true;
+        this.axios.post(process.env.VUE_APP_URL + '/promotor/add',formnewpromotor).then((response) => {
+          if(response.data.code == 200){
+            this.msmalert = response.data.msm;
+            this.alertactive = true;
+            this.$refs.formvalidpromotor.reset();
+            this.loadingtabledata();
+          } else if(response.data.code == 402){
+            this.msmalert = response.data.msm;
+            this.alertactive = true;
+          }
+        }).catch((error) =>{
+          console.log("Error en el try catch");
+          console.log(error);
+        });
+        this.overlay = false;
+      }
+    },
+    savepromotoredit(){
+      if(this.$refs.formvalidpromotoredit.validate()){
+        var formdatapromotoredit = new FormData();
+        formdatapromotoredit.append('api_token',localStorage.getItem('token_user'));
+
+        formdatapromotoredit.append('id',this.idpromotoredit);
+        formdatapromotoredit.append('name',this.namepromotoredit);
+        formdatapromotoredit.append('address',this.addresspromotoredit);
+        formdatapromotoredit.append('phone',this.phonepromotoredit);
+        formdatapromotoredit.append('website',this.webpromotoredit);
+        formdatapromotoredit.append('img',this.fileimgpromotoredit);
+
+        this.overlay = true;
+        this.axios.post(process.env.VUE_APP_URL + '/promotor/update',formdatapromotoredit).then((response) => {
+          if(response.data.code == 200){
+            this.msmalert = response.data.msm;
+            this.alertactive = true;
+            this.modaledit = false;
+            this.loadingtabledata();
+          } else if(response.data.code == 402){
+            this.msmalert = response.data.msm;
+            this.alertactive = true;
+          }
+        }).catch((error) =>{
+          console.log("Error en el try catch");
+          console.log(error);
+        });
+        this.overlay = false;
+      }
+    },
     editar(data){
-      console.log("-----------Modificando registro-------------");
-      console.log(data);
+
+      this.idpromotoredit = data.id;
+      this.namepromotoredit = data.nombre;
+      this.addresspromotoredit = data.direccion;
+      this.phonepromotoredit = data.telefono;
+      this.webpromotoredit = data.sitioWeb;
+      this.imgsrcedit = data.img;
+
+      this.modaledit = true;
     },
     eliminar(data){
-      console.log("--------------eliminando registro--------------");
-      console.log(data);
+
+      this.$confirm('¿Deseas eliminar al promotor ' + data.nombre + '?').then((res) => {
+        if(res){
+          var formdatadestroy = new FormData();
+          formdatadestroy.append("api_token",localStorage.getItem('token_user'));
+          formdatadestroy.append("id",data.id);
+
+          this.overlay = true;
+
+          this.axios.post(process.env.VUE_APP_URL + '/promotor/delete',formdatadestroy).then((response) => {
+
+            if(response.data.code == 200){
+              this.loadingtabledata();
+              this.msmalert = response.data.msm;
+              this.alertactive = true;
+
+            } else if(response.data.code == 402){
+              this.msmalert = response.data.msm;
+              this.alertactive = true;
+              this.loadingtabledata();
+            }
+          }).catch((error) =>{
+            console.log("Error en el try catch");
+            console.log(error);
+          });
+          this.overlay = false;
+        }
+      })
     }
   },
   mounted(){
