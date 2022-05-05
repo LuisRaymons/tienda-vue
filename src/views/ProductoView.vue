@@ -181,6 +181,7 @@ export default {
       this.axios.post(process.env.VUE_APP_URL + '/producto/get/all',formdatatable).then((response) => {
         if(response.data.code == 200){
           var datos = response.data.data;
+          this.data = [];
           datos.forEach((cliente) => {
             this.data.push(cliente);
           });
@@ -198,6 +199,7 @@ export default {
       this.axios.post(process.env.VUE_APP_URL + '/categoria/producto/get/all',formdatacategoria).then((response) => {
         if(response.data.code == 200){
           var datos = response.data.data;
+          this.itemcategorias = [];
           datos.forEach((categoria) => {
             this.itemcategorias.push(categoria['nombre']);
           });

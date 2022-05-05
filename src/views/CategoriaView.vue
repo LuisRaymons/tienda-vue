@@ -129,6 +129,7 @@
           if(response.data.code == 200){
 
             var datos = response.data.data;
+            this.data = [];
             datos.forEach((categoria) => {
               this.datos.push(categoria);
             });

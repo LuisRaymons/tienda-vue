@@ -3,7 +3,8 @@
     <v-content id="backgroundcontainer">
       <v-container>
         <v-overlay :value="overlay" :z-index="zIndex">
-          <v-progress-circular indeterminate size="64"></v-progress-circular>
+          <!--<v-progress-circular indeterminate size="64"></v-progress-circular>-->
+          <v-progress-circular :size="50" color="primary" indeterminate></v-progress-circular>
           <h6>Cargando informacion</h6>
         </v-overlay>
         <v-row>

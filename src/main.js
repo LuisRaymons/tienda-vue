@@ -5,6 +5,7 @@ import store from './store'
 import vuetify from './plugins/vuetify'
 import VuetifyConfirm from 'vuetify-confirm'
 
+
 Vue.config.productionTip = false
 
 import axios from 'axios'

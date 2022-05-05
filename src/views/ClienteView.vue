@@ -182,6 +182,7 @@ export default {
         if(response.data.code == 200){
 
           var datos = response.data.data;
+          this.data = [];
           datos.forEach((cliente) => {
             //console.log(cliente);
             this.data.push(cliente);

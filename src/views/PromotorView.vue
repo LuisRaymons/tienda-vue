@@ -181,6 +181,7 @@ export default {
         if(response.data.code == 200){
 
           var datos = response.data.data;
+          this.data  = [];
           datos.forEach((promotor) => {
             this.data.push(promotor);
           });

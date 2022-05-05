@@ -184,6 +184,7 @@ export default {
       this.axios.post(process.env.VUE_APP_URL + '/usuario/get/all',formdatatable).then((response) => {
         if(response.data.code == 200){
           var datos = response.data.data;
+          this.data = [];
           datos.forEach((cliente) => {
             this.data.push(cliente);
           });

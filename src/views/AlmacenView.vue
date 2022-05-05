@@ -13,6 +13,16 @@
            </template>
          </v-snackbar>
 
+         <v-row>
+           <v-col cols="12" sm="6">
+           </v-col>
+
+           <v-col cols="12" sm="6">
+             <v-text-field v-model="searchalmacen" append-icon="mdi-magnify" label="Buscar" single-line hide-details outlined>
+             </v-text-field>
+           </v-col>
+         </v-row>
+
          <v-data-table :headers="headertable" :items="data" :search="searchalmacen">
            <template v-slot:[`item.actions`]="{ item }">
               <v-icon  small class="mr-2" @click="editar(item)">
@@ -107,6 +117,7 @@ export default {
         if(response.data.code == 200){
 
           var datos = response.data.data;
+          this.data = [];
           datos.forEach((almacen) => {
             //console.log(almacen);
             this.data.push(almacen);

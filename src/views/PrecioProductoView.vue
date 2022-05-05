@@ -41,9 +41,46 @@
             </v-data-table>
           </v-tab-item>
           <v-tab-item>
-            <h3>tab Dos</h3>
+            <v-form ref="formvalidproductprecio" v-model="validformproductprecio" lazy-validation>
+              <v-card-text></v-card-text>
+              <v-select v-model="selectproductoprecionew" :items="itemsproductprecios" :rules="[() => !!selectproductoprecionew || 'Seleccione el producto para asignar precio']" label="Seleccione el producto para asignar precio" outlined required></v-select>
+              <v-text-field v-model="precioproduct" type="number" label="Precio" outlined :rules="[() => !!precioproduct || 'El precio es requerido']" required>
+              </v-text-field>
+
+              <v-btn large color="primary" @click="saveproductprice">Guardar</v-btn>
+            </v-form>
           </v-tab-item>
         </v-tabs-items>
+
+
+
+        <!--- Model editar -->
+        <v-dialog v-model="modaledit" transition="dialog-top-transition" max-width="600">
+          <template v-slot:default="dialog">
+            <v-card>
+              <v-toolbar color="primary" dark>Modificar Producto</v-toolbar>
+              <v-card-text>
+                <v-card-text></v-card-text>
+                <v-form ref="formvalidproductprecioedit" v-model="validformproductprecioedit" lazy-validation>
+                  <v-card-text></v-card-text>
+                  <input type="hidden" v-model="idprecioproducto">
+
+                  <v-text-field v-model="selectproductoprecioedit" label="Producto" outlined :rules="[() => !!selectproductoprecioedit || 'El producto es requerido']" disabled required>
+                  </v-text-field>
+
+                  <v-text-field v-model="precioproductedit" type="number" label="Precio" outlined :rules="[() => !!precioproductedit || 'El precio es requerido']" required>
+                  </v-text-field>
+
+                </v-form>
+
+              </v-card-text>
+              <v-card-actions class="justify-end">
+                <v-btn large color="primary" @click="saveproductpriceedit">Guardar</v-btn>
+                <v-btn large color="secondary" @click="dialog.value = false">Close</v-btn>
+              </v-card-actions>
+            </v-card>
+          </template>
+        </v-dialog>
 
       </v-container>
     </v-main>
@@ -80,6 +117,17 @@ export default {
         alertactive:false,
         multiLine: true,
         timeout: 4000,
+
+        validformproductprecio: true,
+        selectproductoprecionew: '',
+        itemsproductprecios: [],
+        precioproduct:'',
+
+        modaledit: false,
+        validformproductprecioedit: true,
+        idprecioproducto:0,
+        selectproductoprecioedit: '',
+        precioproductedit: ''
       }
   },
   methods:{
@@ -92,7 +140,7 @@ export default {
 
       this.axios.post(process.env.VUE_APP_URL + '/producto/precio/get/all',formdatatable).then((response) => {
         if(response.data.code == 200){
-
+          this.data = [];
           var datos = response.data.data;
           datos.forEach((precio) => {
             this.data.push(precio);
@@ -105,17 +153,119 @@ export default {
       });
       this.overlay = false;
     },
+    loadingproduct(){
+      var formdataexistproductprice = new FormData();
+      formdataexistproductprice.append('api_token',localStorage.getItem('token_user'));
+      this.overlay = true;
+
+      this.axios.post(process.env.VUE_APP_URL + '/producto/precio/missing',formdataexistproductprice).then((response) => {
+        if(response.data.code == 200){
+
+          var datosprice = response.data.data;
+          this.itemsproductprecios = [];
+          datosprice.forEach((precio) => {
+            this.itemsproductprecios.push(precio['nombre']);
+          });
+
+        }
+      }).catch((error) =>{
+        console.log("Error en el try catch");
+        console.log(error);
+      });
+      this.overlay = false;
+    },
+    saveproductprice(){
+      if(this.$refs.formvalidproductprecio.validate()){
+        var formdataprecioproductonew = new FormData();
+        formdataprecioproductonew.append('api_token',localStorage.getItem('token_user'));
+        formdataprecioproductonew.append('product',this.selectproductoprecionew);
+        formdataprecioproductonew.append('price',this.precioproduct);
+
+        this.overlay = true;
+        this.axios.post(process.env.VUE_APP_URL + '/producto/precio/add',formdataprecioproductonew).then((response) => {
+          if(response.data.code == 200){
+            this.msmalert = response.data.msm;
+            this.alertactive = true;
+            this.$refs.formvalidproductprecio.reset();
+            this.loadingtabledata();
+            this.loadingproduct();
+          } else if(response.data.code == 402){
+            this.msmalert = response.data.msm;
+            this.alertactive = true;
+          }
+        }).catch((error) =>{
+          console.log("Error en el try catch");
+          console.log(error);
+        });
+        this.overlay = false;
+      }
+    },
+    saveproductpriceedit(){
+      if(this.$refs.formvalidproductprecioedit.validate()){
+        var formdataprecioproductoedit = new FormData();
+        formdataprecioproductoedit.append('api_token',localStorage.getItem('token_user'));
+        formdataprecioproductoedit.append('id',this.idprecioproducto);
+        formdataprecioproductoedit.append('price',this.precioproductedit);
+
+        this.overlay = true;
+        this.axios.post(process.env.VUE_APP_URL + '/producto/precio/update',formdataprecioproductoedit).then((response) => {
+          if(response.data.code == 200){
+            this.msmalert = response.data.msm;
+            this.alertactive = true;
+            this.modaledit = false;
+            this.loadingtabledata();
+            this.loadingproduct();
+          } else if(response.data.code == 402){
+            this.msmalert = response.data.msm;
+            this.alertactive = true;
+          }
+        }).catch((error) =>{
+          console.log("Error en el try catch");
+          console.log(error);
+        });
+        this.overlay = false;
+      }
+    },
     editar(data){
-      console.log("-----------Modificando registro-------------");
-      console.log(data);
+      this.idprecioproducto = data.id;
+      this.selectproductoprecioedit  = data.producto;
+      this.precioproductedit = data.precio;
+
+      this.modaledit = true;
     },
     eliminar(data){
-      console.log("--------------eliminando registro--------------");
-      console.log(data);
+      this.$confirm('¿Deseas eliminar precio del producto :  ' + data.producto + '?').then((res) => {
+        if(res){
+          var formdatadestroy = new FormData();
+          formdatadestroy.append("api_token",localStorage.getItem('token_user'));
+          formdatadestroy.append("id",data.id);
+
+          this.overlay = true;
+
+          this.axios.post(process.env.VUE_APP_URL + '/producto/precio/delete',formdatadestroy).then((response) => {
+
+            if(response.data.code == 200){
+              this.loadingtabledata();
+              this.msmalert = response.data.msm;
+              this.alertactive = true;
+
+            } else if(response.data.code == 402){
+              this.msmalert = response.data.msm;
+              this.alertactive = true;
+              this.loadingtabledata();
+            }
+          }).catch((error) =>{
+            console.log("Error en el try catch");
+            console.log(error);
+          });
+          this.overlay = false;
+        }
+      })
     }
   },
   mounted(){
     this.loadingtabledata();
+    this.loadingproduct();
   }
 }
 </script>
