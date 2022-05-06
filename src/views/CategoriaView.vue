@@ -5,14 +5,20 @@
 
     <v-main>
       <v-container class="py-8 px-6" fluid>
-         <v-snackbar v-model="alertactive" :timeout="timeout" :multi-line="multiLine">
+
+        <v-overlay :value="overlay" :z-index="zIndex">
+          <v-progress-circular :size="50" color="primary" indeterminate></v-progress-circular>
+          <h6>Cargando informacion</h6>
+        </v-overlay>
+
+        <v-snackbar v-model="alertactive" :timeout="timeout" :multi-line="multiLine">
             {{msmalert}}
             <template v-slot:action="{ attrs }">
               <v-btn color="blue" text v-bind="attrs" @click="alertactive = false">
                 Close
               </v-btn>
             </template>
-          </v-snackbar>
+        </v-snackbar>
         <v-tabs v-model="tab" >
           <v-tab>Datos</v-tab>
           <v-tab>Registro</v-tab>
@@ -91,6 +97,8 @@
     data:()=>{
         return {
           drawer: true,
+          overlay: false,
+          zIndex: 300,
           headertable: [{text:'id',value:'id'},{text:'nombre',value:'nombre'},{ text: 'Actions', value: 'actions', sortable: false }],
           datos:[],
           tab:null,
@@ -122,6 +130,7 @@
         formdatatable.append('api_token',localStorage.getItem('token_user'));
         formdatatable.append('numpag',20);
         formdatatable.append('pag',1);
+
         this.overlay = true;
 
         this.axios.post(process.env.VUE_APP_URL + '/categoria/producto/get/all',formdatatable).then((response) => {
@@ -133,19 +142,21 @@
             datos.forEach((categoria) => {
               this.datos.push(categoria);
             });
-
-
+            this.overlay = false;
           }
         }).catch((error) =>{
+          this.overlay = false;
           console.log("Error en el try catch");
           console.log(error);
         });
-        this.overlay = false;
+
       },
       editar(data){
+        this.overlay =  true;
         this.idcategoriaedit = data.id;
         this.namecategoriaedit = data.nombre;
         this.modaledit = true;
+        this.overlay = false;
       },
       eliminar(data){
         this.$confirm('¿Deseas eliminar la categoria ' + data.nombre + '?').then((res) => {
@@ -153,8 +164,7 @@
             var formdatadestroy = new FormData();
             formdatadestroy.append("api_token",localStorage.getItem('token_user'));
             formdatadestroy.append("id",data.id);
-
-            this.overlay = true;
+            this.overlay =  true;
 
             this.axios.post(process.env.VUE_APP_URL + '/categoria/producto/delete',formdatadestroy).then((response) => {
 
@@ -162,19 +172,19 @@
                 this.loadingtabledata();
                 this.msmalert = response.data.msm;
                 this.alertactive = true;
-                console.log("-----1-----");
 
               } else if(response.data.code == 402){
                 this.msmalert = response.data.msm;
                 this.alertactive = true;
                 this.loadingtabledata();
-                console.log("-----2-----");
               }
+              this.overlay =  false;
             }).catch((error) =>{
+              this.overlay = false;
               console.log("Error en el try catch");
               console.log(error);
             });
-            this.overlay = false;
+
           }
         })
       },
@@ -184,8 +194,7 @@
           var formdata = new FormData();
           formdata.append("api_token",localStorage.getItem('token_user'));
           formdata.append("nombre",this.namecategoria);
-
-          this.overlay = true;
+          this.overlay =  true;
 
           this.axios.post(process.env.VUE_APP_URL + '/categoria/producto/add',formdata).then((response) => {
 
@@ -198,13 +207,12 @@
               this.msmalert = response.data.msm;
               this.alertactive = true;
             }
+            this.overlay =  false;
           }).catch((error) =>{
+            this.overlay =  false;
             console.log("Error en el try catch");
             console.log(error);
           });
-          console.log("------------completado sas----------------");
-          this.overlay = false;
-
         }
       },
       savecategoriaedit(){
@@ -214,7 +222,7 @@
           formdataeditcategoria.append('api_token',localStorage.getItem('token_user'));
           formdataeditcategoria.append('id',this.idcategoriaedit);
           formdataeditcategoria.append('nombre',this.namecategoriaedit);
-          this.overlay = true;
+          this.overlay =  true;
 
           this.axios.post(process.env.VUE_APP_URL + '/categoria/producto/update',formdataeditcategoria).then((response) => {
             if(response.data.code == 200){
@@ -226,11 +234,12 @@
               this.msmalert = response.data.msm;
               this.alertactive = true;
             }
+            this.overlay =  false;
           }).catch((error) =>{
+            this.overlay =  false;
             console.log("Error en el try catch");
             console.log(error);
           });
-          this.overlay = false;
 
 
         }

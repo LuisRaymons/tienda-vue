@@ -2,13 +2,13 @@
   <v-app id="inspire">
     <v-content id="backgroundcontainer">
       <v-container>
+
         <v-overlay :value="overlay" :z-index="zIndex">
-          <!--<v-progress-circular indeterminate size="64"></v-progress-circular>-->
           <v-progress-circular :size="50" color="primary" indeterminate></v-progress-circular>
           <h6>Cargando informacion</h6>
         </v-overlay>
-        <v-row>
 
+        <v-row>
           <v-col md="5" offset-md="4" id="tabloginregister">
             <v-toolbar color="#4050af">
               <v-tabs horizontal v-model="tablogin">
@@ -126,11 +126,13 @@ export default {
           //console.log(this.$router);
           this.$router.push('home');
         }
+        this.overlay = false;
       }).catch((error) =>{
+        this.overlay = false;
         console.log("Error en el try catch");
         console.log(error);
       });
-      this.overlay = false;
+
 
 
       console.log("Logeando");

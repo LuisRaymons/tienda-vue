@@ -4,6 +4,11 @@
     <SliderbarComponent  v-bind:drawer="drawer"/>
     <v-main>
       <v-container class="py-8 px-6" fluid>
+        <v-overlay :value="overlay" :z-index="zIndex">
+          <v-progress-circular :size="50" color="primary" indeterminate></v-progress-circular>
+          <h6>Cargando informacion</h6>
+        </v-overlay>
+
         <v-snackbar v-model="alertactive" :timeout="timeout" :multi-line="multiLine">
            {{msmalert}}
            <template v-slot:action="{ attrs }">
@@ -11,7 +16,7 @@
                Close
              </v-btn>
            </template>
-         </v-snackbar>
+        </v-snackbar>
 
         <v-tabs v-model="tab" >
           <v-tab>Datos</v-tab>
@@ -66,7 +71,6 @@
           </v-tab-item>
         </v-tabs-items>
 
-
         <!--- Model editar -->
         <v-dialog v-model="modaledit" transition="dialog-top-transition" max-width="600">
           <template v-slot:default="dialog">
@@ -120,6 +124,8 @@ export default {
   data:()=>{
       return {
         drawer: true,
+        overlay: false,
+        zIndex: 300,
         headertable: [
             {text:'id',value:'id'},
             {text:'folio',value:'folio'},
@@ -182,13 +188,14 @@ export default {
           datos.forEach((promotor) => {
             this.data.push(promotor);
           });
-
+          this.overlay = false;
         }
       }).catch((error) =>{
+        this.overlay = false;
         console.log("Error en el try catch");
         console.log(error);
       });
-      this.overlay = false;
+
     },
     loadingproducts(){
       var formdataproducts = new FormData();
@@ -249,11 +256,12 @@ export default {
             this.msmalert = response.data.msm;
             this.alertactive = true;
           }
+          this.overlay = false;
         }).catch((error) =>{
+          this.overlay = false;
           console.log("Error en el try catch");
           console.log(error);
         });
-        this.overlay = false;
       }
     },
     savecompraedit(){
@@ -278,14 +286,16 @@ export default {
             this.msmalert = response.data.msm;
             this.alertactive = true;
           }
+          this.overlay = false;
         }).catch((error) =>{
+          this.overlay = false;
           console.log("Error en el try catch");
           console.log(error);
         });
-        this.overlay = false;
       }
     },
     editar(data){
+      this.overlay =  true;
       this.ideditcompra = data.id;
       this.itemproductedit = data.cantidad_stock;
       this.pricetotaledit = data.precio_total;
@@ -294,6 +304,7 @@ export default {
       this.selectpromotoredit = data.promotor;
 
       this.modaledit = true;
+      this.overlay =  false;
     },
     eliminar(data){
       this.$confirm('¿Deseas eliminar la compra con folio:  ' + data.folio + '?').then((res) => {
@@ -316,11 +327,12 @@ export default {
               this.alertactive = true;
               this.loadingtabledata();
             }
+            this.overlay = false;
           }).catch((error) =>{
+            this.overlay = false;
             console.log("Error en el try catch");
             console.log(error);
           });
-          this.overlay = false;
         }
       })
     },

@@ -4,6 +4,10 @@
     <SliderbarComponent  v-bind:drawer="drawer"/>
     <v-main>
       <v-container class="py-8 px-6" fluid>
+        <v-overlay :value="overlay" :z-index="zIndex">
+          <v-progress-circular :size="50" color="primary" indeterminate></v-progress-circular>
+        </v-overlay>
+
         <v-snackbar v-model="alertactive" :timeout="timeout" :multi-line="multiLine">
            {{msmalert}}
            <template v-slot:action="{ attrs }">
@@ -52,8 +56,6 @@
           </v-tab-item>
         </v-tabs-items>
 
-
-
         <!--- Model editar -->
         <v-dialog v-model="modaledit" transition="dialog-top-transition" max-width="600">
           <template v-slot:default="dialog">
@@ -97,6 +99,8 @@ export default {
   data:()=>{
       return {
         drawer: true,
+        overlay: false,
+        zIndex: 300,
         headertable: [
             {text:'id',value:'id'},
             {text:'precio',value:'precio'},
@@ -145,13 +149,14 @@ export default {
           datos.forEach((precio) => {
             this.data.push(precio);
           });
-
+          this.overlay = false;
         }
       }).catch((error) =>{
+        this.overlay = false;
         console.log("Error en el try catch");
         console.log(error);
       });
-      this.overlay = false;
+
     },
     loadingproduct(){
       var formdataexistproductprice = new FormData();
@@ -193,11 +198,12 @@ export default {
             this.msmalert = response.data.msm;
             this.alertactive = true;
           }
+          this.overlay = false;
         }).catch((error) =>{
+          this.overlay = false;
           console.log("Error en el try catch");
           console.log(error);
         });
-        this.overlay = false;
       }
     },
     saveproductpriceedit(){
@@ -219,19 +225,22 @@ export default {
             this.msmalert = response.data.msm;
             this.alertactive = true;
           }
+          this.overlay = false;
         }).catch((error) =>{
+          this.overlay = false;
           console.log("Error en el try catch");
           console.log(error);
         });
-        this.overlay = false;
       }
     },
     editar(data){
+      this.overlay =  true;
       this.idprecioproducto = data.id;
       this.selectproductoprecioedit  = data.producto;
       this.precioproductedit = data.precio;
 
       this.modaledit = true;
+      this.overlay =  false;
     },
     eliminar(data){
       this.$confirm('¿Deseas eliminar precio del producto :  ' + data.producto + '?').then((res) => {
@@ -248,17 +257,17 @@ export default {
               this.loadingtabledata();
               this.msmalert = response.data.msm;
               this.alertactive = true;
-
             } else if(response.data.code == 402){
               this.msmalert = response.data.msm;
               this.alertactive = true;
               this.loadingtabledata();
             }
+            this.overlay = false;
           }).catch((error) =>{
+            this.overlay = false;
             console.log("Error en el try catch");
             console.log(error);
           });
-          this.overlay = false;
         }
       })
     }

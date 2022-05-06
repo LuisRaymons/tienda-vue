@@ -94,7 +94,7 @@ export default {
   data:()=>{
       return {
         drawer: true,
-        overlay: true,
+        overlay: false,
         zIndex: 300,
         headertable: [
             {text:'id',value:'id'},
@@ -143,17 +143,21 @@ export default {
           datos.forEach((venta) => {
             this.data.push(venta);
           });
+          this.overlay = false;
 
         }
       }).catch((error) =>{
+        this.overlay = false;
         console.log("Error en el try catch");
         console.log(error);
       });
-      this.overlay = false;
+
     },
     editar(data){
+      this.overlay =  true;
       console.log("-----------Modificando registro-------------");
       console.log(data);
+      this.overlay =  false;
     },
     detail(data){
       var formdatatable = new FormData();
@@ -178,8 +182,10 @@ export default {
           });
 
           this.modaldetailventa = true;
+          this.overlay =  false;
         }
       }).catch((error) =>{
+        this.overlay = false;
         console.log("Error en el try catch");
         console.log(error);
       });
